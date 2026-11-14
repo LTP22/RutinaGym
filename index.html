@@ -858,7 +858,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", function () { 
     } else {
       hero.appendChild(el("p", { class: "lede", text: "Hoy toca descanso o pádel. Si quieres entrenar igual, agrega ejercicios abajo." }));
     }
-    viewEl.appendChild(hero);
+    viewEl.insertBefore(hero, strip.nextSibling);
 
     // exercise list
     var firstPending = null;
