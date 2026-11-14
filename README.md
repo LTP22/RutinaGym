@@ -8,4 +8,6 @@ En el celular, ábrela en el navegador y agrégala a la pantalla de inicio (Safa
 
 ## Licencia
 
-Código visible, **todos los derechos reservados**. Ver [LICENSE](LICENSE): no se permite copiar, modificar ni redistribuir sin permiso del autor.
+[MIT](LICENSE) © 2026 LTP22. Puedes usar, copiar, modificar y redistribuir el código libremente, siempre que mantengas el aviso de copyright y la licencia (es decir, que se reconozca la autoría original).
+
+Este repositorio lo mantiene solo su autor: si quieres hacer cambios, haz un fork.
