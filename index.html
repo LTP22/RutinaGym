@@ -497,38 +497,38 @@ if ("serviceWorker" in navigator) window.addEventListener("load", function () { 
   // ---------- routine template ----------
   function template() {
     var chest = function () { return [
-      ex("Pecho", "Press banca", 3, "8-10", "Básico pesado: sube peso cuando completes todas las reps"),
-      ex("Pecho", "Press inclinado con mancuerna", 3, "10-12"),
+      ex("Pecho", "Press banca", 3, "12", "Básico pesado: sube peso cuando completes todas las reps"),
+      ex("Pecho", "Press inclinado con mancuerna", 3, "12"),
       ex("Pecho", "Press declinado en máquina / press pecho máquina", 3, "12"),
-      ex("Pecho", "Pec fly / aperturas en cable", 3, "12-15", "Controla la bajada")]; };
+      ex("Pecho", "Pec fly / aperturas en cable", 3, "12", "Controla la bajada")]; };
     var back = function () { return [
-      ex("Espalda", "Jalón al pecho", 3, "10-12"),
-      ex("Espalda", "Dominadas en máquina asistida", 3, "8-10", "Baja la asistencia al llegar a 10 reps"),
-      ex("Espalda", "Remo en máquina", 3, "10-12"),
+      ex("Espalda", "Jalón al pecho", 3, "12"),
+      ex("Espalda", "Dominadas en máquina asistida", 3, "12", "Baja la asistencia al llegar a 10 reps"),
+      ex("Espalda", "Remo en máquina", 3, "12"),
       ex("Espalda", "Serrato con polea (pullover)", 3, "12")]; };
     var abs = function () { return [
-      ex("Abs", "Crunch abdominal", 3, "12-15"),
-      ex("Abs", "Elevación de piernas", 3, "12-15"),
+      ex("Abs", "Crunch abdominal", 3, "12"),
+      ex("Abs", "Elevación de piernas", 3, "12"),
       ex("Abs", "Press Pallof", 3, "10 c/lado")]; };
     return { version: 3, rest: 90, history: {}, body: [], days: [
       { id: "lun", name: "Lunes", ex: chest().concat([
         ex("Tríceps", "Copa (extensión sobre la cabeza)", 3, "12"),
         ex("Tríceps", "Tríceps en polea", 3, "12"),
-        ex("Hombro", "Press hombro máquina", 3, "10-12"),
-        ex("Hombro", "Elevación lateral en polea", 3, "12-15", "Peso moderado, sin balanceo")]) },
+        ex("Hombro", "Press hombro máquina", 3, "12"),
+        ex("Hombro", "Elevación lateral en polea", 3, "12", "Peso moderado, sin balanceo")]) },
       { id: "mar", name: "Martes", ex: back().concat([
         ex("Bíceps", "Curl en máquina", 3, "12"),
         ex("Bíceps", "Curl en polea de pie con barra", 3, "12")]).concat(abs()) },
       { id: "mie", name: "Miércoles", ex: [
-        ex("Cuádriceps", "Sentadilla libre", 3, "8-10", "Básico pesado: prioriza técnica y profundidad"),
-        ex("Cuádriceps", "Hack squat", 3, "8-10"),
-        ex("Cuádriceps", "Prensa", 3, "10-12"),
-        ex("Cuádriceps", "Extensión de cuádriceps", 3, "12-15"),
-        ex("Femorales", "Peso muerto rumano", 3, "8-10", "Sugerido: bisagra de cadera para femoral y glúteo"),
+        ex("Cuádriceps", "Sentadilla libre", 3, "12", "Básico pesado: prioriza técnica y profundidad"),
+        ex("Cuádriceps", "Hack squat", 3, "12"),
+        ex("Cuádriceps", "Prensa", 3, "12"),
+        ex("Cuádriceps", "Extensión de cuádriceps", 3, "12"),
+        ex("Femorales", "Peso muerto rumano", 3, "12", "Sugerido: bisagra de cadera para femoral y glúteo"),
         ex("Femorales", "Curl femoral tumbado", 3, "12"),
         ex("Femorales", "Curl femoral sentado", 3, "12"),
-        ex("Pantorrilla", "Gemelo sentado", 3, "12-15", "Pausa 1-2 s abajo"),
-        ex("Pantorrilla", "Gemelo en prensa (punta de pie)", 3, "12-15")] },
+        ex("Pantorrilla", "Gemelo sentado", 3, "12", "Pausa 1-2 s abajo"),
+        ex("Pantorrilla", "Gemelo en prensa (punta de pie)", 3, "12")] },
       { id: "jue", name: "Jueves", ex: chest().concat(back()).concat(abs()) },
       { id: "vie", name: "Viernes", ex: [
         ex("Bíceps", "Curl alternado con mancuerna", 3, "12"),
@@ -538,9 +538,9 @@ if ("serviceWorker" in navigator) window.addEventListener("load", function () { 
         ex("Tríceps", "Copa (extensión sobre la cabeza)", 3, "12"),
         ex("Tríceps", "Tríceps en máquina de fondos", 3, "12"),
         ex("Tríceps", "Tríceps en polea", 3, "12"),
-        ex("Hombro", "Press hombro máquina", 3, "10-12"),
-        ex("Hombro", "Elevación lateral en polea", 3, "12-15"),
-        ex("Hombro", "Face pull o pájaros en máquina", 3, "12-15", "Sugerido: deltoide posterior, no lo trabajabas ningún día")] },
+        ex("Hombro", "Press hombro máquina", 3, "12"),
+        ex("Hombro", "Elevación lateral en polea", 3, "12"),
+        ex("Hombro", "Face pull o pájaros en máquina", 3, "12", "Sugerido: deltoide posterior, no lo trabajabas ningún día")] },
       { id: "sab", name: "Sábado", ex: [] },
       { id: "dom", name: "Domingo", ex: [] }
     ] };
@@ -1368,6 +1368,28 @@ if ("serviceWorker" in navigator) window.addEventListener("load", function () { 
       el("h2", { class: "wide", text: "Descanso entre series" }),
       seg,
       el("p", { class: "hint", text: "El temporizador arranca solo cada vez que marcas una serie como hecha." })
+    ]));
+
+    // reps for the whole routine
+    var repsArmed = false;
+    var repsBtn = el("button", { class: "btn", type: "button", text: "Poner 12 reps en todos los ejercicios" });
+    var repsMsg = el("p", { class: "hint", role: "status" });
+    repsBtn.addEventListener("click", function () {
+      var n = 0;
+      state.days.forEach(function (d) { d.ex.forEach(function (e) { if (String(e.reps).trim() !== "12" && !/lado/i.test(String(e.reps))) n++; }); });
+      if (!n) { repsMsg.textContent = "Todos los ejercicios ya están en 12 reps."; return; }
+      if (!repsArmed) { repsArmed = true; repsBtn.classList.add("primary"); repsBtn.textContent = "Toca otra vez: cambia " + n + " ejercicios"; repsMsg.textContent = "Se cambian las reps objetivo a 12. El Press Pallof (por lado) queda igual. Tus registros y pesos no cambian."; return; }
+      state.days.forEach(function (d) { d.ex.forEach(function (e) {
+        if (String(e.reps).trim() === "12" || /lado/i.test(String(e.reps))) return;
+        e.reps = "12";
+        if (e.log && e.log.date === TODAY) e.log.sets.forEach(function (st) { if (!st.done) st.reps = 12; });
+      }); });
+      persist(); toast("Listo: " + n + " ejercicios en 12 reps"); renderSettings();
+    });
+    viewEl.appendChild(el("section", { class: "panel" }, [
+      el("h2", { class: "wide", text: "Repeticiones de la rutina" }),
+      el("p", { class: "hint", text: "Pone las reps objetivo de todos los ejercicios en 12. Para cambiar uno solo, tócalo en Entrenar → ⋯ → Editar ejercicio." }),
+      repsBtn, repsMsg
     ]));
 
     // alarm
