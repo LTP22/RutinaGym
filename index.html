@@ -84,7 +84,7 @@ main { max-width: 640px; margin: 0 auto; padding: 4px 16px calc(env(safe-area-in
 .day { border: 0; background: var(--surface); border-radius: 14px; padding: 8px 0 7px; display: grid; justify-items: center; gap: 3px; box-shadow: var(--shadow); position: relative; }
 .day .d { font-size: .78rem; }
 .day .c { font-size: .66rem; color: var(--muted); font-weight: 600; }
-.day.rest .d { color: var(--muted); }
+.day.free .d { color: var(--muted); }
 .day[aria-selected="true"] { background: var(--ink); color: var(--bg); }
 .day[aria-selected="true"] .c { color: var(--bg); opacity: .7; }
 .day.did .c { color: var(--good); }
@@ -550,6 +550,11 @@ if ("serviceWorker" in navigator) window.addEventListener("load", function () { 
     if (!s.history || typeof s.history !== "object") s.history = {};
     if (!s.rest) s.rest = 90;
     if (!Array.isArray(s.body)) s.body = [];
+    if (!s.started) {
+      var first = null;
+      Object.keys(s.history).forEach(function (k) { (s.history[k] || []).forEach(function (x) { if (!first || x.date < first) first = x.date; }); });
+      s.started = first || todayKey();
+    }
     var a = s.alert || {};
     s.alert = { sound: a.sound !== false, volume: typeof a.volume === "number" ? a.volume : 0.6, tone: a.tone || "beep", warn10: !!a.warn10, vibrate: a.vibrate !== false };
     s.days.forEach(function (d) { (d.ex || (d.ex = [])).forEach(function (e) { if (!e.id) e.id = uid(); delete e.done; }); });
@@ -579,7 +584,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", function () { 
     Object.keys(state.history).forEach(function (k) { state.history[k].forEach(function (s) { markMonth(s.date); }); });
     Object.keys(knownMonths).forEach(function (m) { dirtyMonths[m] = 1; });
   }
-  function mainBody() { return JSON.parse(JSON.stringify({ version: 3, rest: state.rest, alert: state.alert, todayPick: state.todayPick || null, skipped: state.skipped || {}, body: state.body || [], days: state.days })); }
+  function mainBody() { return JSON.parse(JSON.stringify({ version: 3, rest: state.rest, alert: state.alert, todayPick: state.todayPick || null, skipped: state.skipped || {}, body: state.body || [], started: state.started, days: state.days })); }
   function monthBody(m) {
     var exs = {}, n = 0;
     Object.keys(state.history).forEach(function (k) {
@@ -704,7 +709,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", function () { 
       var m = marked[d.name] || {}, n = act.filter(function (e) { return m[keyOf(e.name)]; }).length;
       prog[d.name] = { n: n, total: act.length };
       if (n / act.length > 0.5) did[d.name] = true;
-      else if (i < TODAY_IDX) pending.push(i);
+      else if (i < TODAY_IDX && addDaysKey(monKey, i) >= (state.started || TODAY)) pending.push(i);
     });
     var skipped = (state.skipped && state.skipped[monKey]) || [];
     pending = pending.filter(function (i) { return skipped.indexOf(state.days[i].name) < 0; });
@@ -719,6 +724,10 @@ if ("serviceWorker" in navigator) window.addEventListener("load", function () { 
     if (!list.length) delete sk[wk.monKey];
     Object.keys(sk).sort().slice(0, -8).forEach(function (k) { delete sk[k]; }); // keep the last 8 weeks
     persist(); renderTrain();
+  }
+  function addDaysKey(dateKey, n) {
+    var p = dateKey.split("-"), d = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]) + n);
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
   }
   function pickToday(i) { current = i; state.todayPick = { date: TODAY, idx: i }; persist(); renderTrain(); window.scrollTo(0, 0); }
 
@@ -735,7 +744,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", function () { 
       var n = activeOf(d).length, did = !!wk.did[d.name], pg = wk.prog[d.name];
       var skip = !did && wk.skipped.indexOf(d.name) >= 0;
       var partial = !did && !skip && pg && pg.n > 0;
-      strip.appendChild(el("button", { type: "button", role: "tab", class: "day" + (n ? "" : " rest") + (i === TODAY_IDX ? " is-today" : "") + (did ? " did" : "") + (partial ? " part" : "") + (skip ? " skip" : ""), "aria-selected": String(i === current),
+      strip.appendChild(el("button", { type: "button", role: "tab", class: "day" + (n ? "" : " free") + (i === TODAY_IDX ? " is-today" : "") + (did ? " did" : "") + (partial ? " part" : "") + (skip ? " skip" : ""), "aria-selected": String(i === current),
         "aria-label": d.name + (did ? ", hecho esta semana" : skip ? ", no fuiste" : partial ? ", " + pg.n + " de " + pg.total + " ejercicios" : ""),
         onclick: function () { current = i; renderTrain(); window.scrollTo(0, 0); } }, [
         el("span", { class: "d cond", text: d.name.slice(0, 3) }),
@@ -801,14 +810,14 @@ if ("serviceWorker" in navigator) window.addEventListener("load", function () { 
         title = day.name + ": hecho esta semana ✓";
         text = "Si quieres repetirlo hoy como día extra, se guarda en el " + hoy + ".";
         btns.push(el("button", { class: "btn primary", type: "button", text: "Repetir hoy", onclick: function () { pickToday(current); } }));
-      } else if (isPast) {
+      } else if (isPast && addDaysKey(weekInfo().monKey, current) >= (state.started || TODAY)) {
         title = day.name + ": pendiente";
         text = "Todavía no lo hiciste esta semana. Puedes entrenarlo hoy (se guarda en el " + hoy + ") o marcar que no fuiste.";
         btns.push(el("button", { class: "btn", type: "button", text: "No fui", onclick: function () { setSkip(day.name, true); toast(day.name + ": salteado esta semana"); } }));
         btns.push(el("button", { class: "btn primary", type: "button", text: "Entrenarlo hoy", onclick: function () { pickToday(current); } }));
       } else {
-        title = "Vista previa del " + day.name.toLowerCase();
-        text = "Le toca más adelante en la semana. Si quieres hacerlo hoy, se guarda en el " + hoy + ".";
+        title = isPast ? "Rutina del " + day.name.toLowerCase() : "Vista previa del " + day.name.toLowerCase();
+        text = (isPast ? "" : "Le toca más adelante en la semana. ") + "Si quieres hacerlo hoy, se guarda en el " + hoy + ".";
         btns.push(el("button", { class: "btn primary", type: "button", text: "Entrenarlo hoy", onclick: function () { pickToday(current); } }));
       }
       viewEl.appendChild(el("section", { class: "day-card" + (isPicked ? " on" : "") }, [
@@ -1649,7 +1658,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", function () { 
     if (!main) { markAllMonths(); persist(); return; } // first time: upload what this phone has
     var copy = JSON.parse(JSON.stringify(main));
     state.days = copy.days; state.rest = copy.rest || 90; if (copy.alert) state.alert = copy.alert;
-    state.skipped = copy.skipped || {}; state.body = Array.isArray(copy.body) ? copy.body : (state.body || []);
+    state.skipped = copy.skipped || {}; if (copy.started && (!state.started || copy.started < state.started)) state.started = copy.started; state.body = Array.isArray(copy.body) ? copy.body : (state.body || []);
     if (copy.todayPick && copy.todayPick.date === TODAY) { state.todayPick = copy.todayPick; if (copy.days[copy.todayPick.idx]) current = copy.todayPick.idx; }
     Object.keys(h).forEach(function (k) { h[k].sort(function (a, b) { return a.date < b.date ? -1 : 1; }); });
     if (Object.keys(km).length || !Object.keys(state.history).length) state.history = h;

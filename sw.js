@@ -1,5 +1,5 @@
 // Offline support: the app shell is cached; index.html and config.js are fetched fresh when online.
-const CACHE = "mi-rutina-v1";
+const CACHE = "mi-rutina-v2";
 const SHELL = ["./", "index.html", "config.js", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png",
   "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
